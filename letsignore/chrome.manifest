@@ -1,0 +1,8 @@
+content	letsignore jar:chrome/letsignore.jar!/content/
+
+overlay	chrome://browser/content/browser.xul	chrome://letsignore/content/letsignore-overlay.xul
+
+locale letsignore en-US jar:chrome/letsignore.jar!/locale/en-US/
+
+skin letsignore classic/1.0 jar:chrome/letsignore.jar!/skin/
+

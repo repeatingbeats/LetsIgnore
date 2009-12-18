@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<!DOCTYPE overlay SYSTEM "chrome://letsignore/locale/letsignore.dtd">
+<overlay id="ignore-manager"
+  xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script src="xmlhttprequester.js"></script>
+  <script src="prefman.js"></script>
+  <script src="letsignore-main.js"></script>
+ 
+    <menupopup id="menu_ToolsPopup">
+    <menuitem id="letsignore-menuitem"
+              label="&letsignore.menu.label;"
+              oncommand="LetsIgnore.Controller.onMenuCommand();"/>
+    </menupopup>
+ 
+</overlay>

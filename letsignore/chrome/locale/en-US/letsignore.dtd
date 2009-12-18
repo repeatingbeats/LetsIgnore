@@ -1,0 +1,26 @@
+<!ENTITY letsignore.window.title "LetsIgnore" >
+<!ENTITY letsignore.window.closeLabel "CLOSE" >
+<!ENTITY letsignore.window.prefs "Preferences">
+<!ENTITY letsignore.window.threads "Ignored Threads">
+<!ENTITY letsignore.window.users "Ignored Users">
+<!ENTITY letsignore.window.terms "Ignored Terms">
+
+<!ENTITY letsignore.window.pref.disable "Disable all LetsIgnore ignoring functions">
+<!ENTITY letsignore.window.pref.disable.info "Turns off ignored threads and ignored users. Removes 'X' boxes next to threads and users. Does not override ad removal preferences.">
+<!ENTITY letsignore.window.pref.top.ad "Remove ad embedded in top half of main forums page">
+<!ENTITY letsignore.window.pref.top.ad.info "Adblock Plus removes this ad, but sometimes an empty element gets left behind. Enabling this preference will remove the empty element. It will also remove the entire ad if Adblock Plus is not in use.">
+<!ENTITY letsignore.window.pref.mid.ad "Remove text ads from thread index">
+<!ENTITY letsignore.window.pref.mid.ad.info "Enabling this preference removes text ads embedded in the message board.">
+
+<!ENTITY letsignore.menu.label "LetsIgnore" >
+
+<!ENTITY letsignore.threads.title "Thread">
+<!ENTITY letsignore.threads.author "Author">
+<!ENTITY letsignore.threads.date "Date Ignored">
+<!ENTITY letsignore.threads.unignore "Un-ignore Selected">
+
+<!ENTITY letsignore.users.label "Ignore A User:">
+<!ENTITY letsignore.users.title "User Name">
+<!ENTITY letsignore.users.date "Date Ignored">
+<!ENTITY letsignore.users.ignore "Ignore">
+<!ENTITY letsignore.users.unignore "Un-ignore Selected">

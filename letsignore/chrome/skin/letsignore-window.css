@@ -1,0 +1,112 @@
+/*#content {
+  width : 760px;
+  height : 480px;
+}
+
+#footer {
+  height : 40px;
+}*/
+
+#main-content {
+  border-bottom : solid;
+  border-bottom-width : 1px;
+  border-bottom-color : #AAA;
+}
+
+#content-menu {
+  /*width : 160px;*/
+  border-right : solid;
+  border-right-width : 1px;
+  border-right-color : #AAA;
+  font-size : 1.2em;
+  font-weight : bold;
+}
+
+#content-options-list {
+  margin : 0;
+  border-style : none;
+}
+
+#content-options-list listitem {
+  padding : 10px 0px 10px 10px;
+  margin : 0;
+  border-bottom : solid;
+  border-bottom-width : 1px;
+  border-bottom-color : #AAA;
+  border-left-style : none;
+  border-right-style : none;
+  color : #333;
+}
+
+#content-options-list listitem[selected="true"] {
+  background-color : #BCF;
+}
+
+/*#content-display {
+  width : 600px;
+}*/
+
+#thread-page {
+  margin : 15px;
+}
+
+#pref-page {
+  margin : 15px;
+}
+
+#pref-page richlistitem {
+  -moz-box-align : center;
+  padding : 8px;
+  border-bottom : solid 1px #AAA;
+}
+
+#pref-page-list richlistitem[selected="true"] {
+  background-color : #BCF;
+  color : #000;
+}
+
+#pref-info-deck {
+  border : 1px solid #AAA;
+  background-color : white;
+  margin : 15px 5px 5px 5px;
+}
+
+#pref-info-deck vbox {
+  margin : 15px;
+}
+
+#pref-info-deck image {
+  border : 1px solid #AAA;
+}
+
+#thread-unignore-button {
+  margin-top : 10px;
+  margin-bottom : -5px; 
+}
+
+#user-controls-box {
+  margin : 15px;
+}
+
+#user-tree-box {
+  margin : 15px;
+}
+
+#user-ignore-label {
+  font-weight : bold;
+  font-size : 1.1em;
+}
+
+#user-ignore-desc {
+   margin : 5px;
+}
+
+.pref-info-title {
+  font-size : 1.2em;
+  font-weight : bold;
+}
+
+.letsignore-button {
+}
+
+

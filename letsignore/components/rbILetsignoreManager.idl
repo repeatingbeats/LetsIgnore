@@ -1,0 +1,36 @@
+// letsignoreManager.idl
+
+
+#include "nsISupports.idl"
+#include "MozIStorageStatementCallback.idl"
+
+[scriptable, uuid(94962e56-11fc-4b28-b574-b87a4c690e5b)]
+interface rbILetsignoreManager : nsISupports
+{
+  // fields
+  attribute boolean initialized;  
+
+  // methods
+  void initialize();
+  void ignoreThread(in long id,
+                    in AString title,
+                    in AString auth,
+                    in AString dt,
+                    in long code );
+
+  AString printDb();
+
+  void getIgnoredThreads(in MozIStorageStatementCallback callback);
+  void getIgnoredUsers(in MozIStorageStatementCallback callback);
+
+  void unignoreThread(in AString id);
+  boolean isThreadIgnored(in AString id);
+  AString dumpThreadCache();
+
+  AString dumpUserCache();
+  boolean isUserIgnored(in AString user);
+  void unignoreUser(in AString user);
+  void ignoreUser(in AString user,
+                  in AString ignoreDate);
+};
+
