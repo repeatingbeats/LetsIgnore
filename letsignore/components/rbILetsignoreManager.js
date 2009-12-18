@@ -156,7 +156,7 @@ rbILetsignoreManager.prototype = {
     this._uncacheUser(user);
     try {
       // need to change to bound parameters
-      this._db.exectureSimpleSQL(
+      this._db.executeSimpleSQL(
              "DELETE FROM ignoredUsers WHERE user='" + user + "'");
     } catch(err) {
       Cu.reportError(err);
