@@ -292,7 +292,7 @@ LetsIgnore.WindowManager = {
         this.ignoredUsersData.splice(i--,1);
       }
     }
-    this.resetThreadTree();
+    this.resetUserTree();
     document.getElementById("user-unignore-button").disabled = true;
   },
 
