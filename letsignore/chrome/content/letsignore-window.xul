@@ -1,4 +1,30 @@
 <?xml version="1.0"?>
+
+<!--
+ *
+ * Window UI for LetsIgnore
+ *
+ * Copyright (c) 2009 Steven M. Lloyd
+ * steve@repeatingbeats.com
+ *
+ *
+ * This file is part of the LetsIgnore Firefox Extension.
+ *
+ * This file may be licensed under the terms of of the
+ * GNU General Public License Version 2 (the ``GPL'').
+ *
+ * Software distributed under the License is distributed
+ * on an ``AS IS'' basis, WITHOUT WARRANTY OF ANY KIND, either
+ * express or implied. See the GPL for the specific language
+ * governing rights and limitations.
+ *
+ * You should have received a copy of the GPL along with this
+ * program. If not, go to http://www.gnu.org/licenses/gpl.html
+ * or write to the Free Software Foundation, Inc.,
+ * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.
+ *
+-->
+
 <?xml-stylesheet href="chrome://global/skin/global.css" type="text/css"?>
 <?xml-stylesheet href="chrome://letsignore/skin/letsignore-window.css" type="text/css"?>
 <!DOCTYPE window SYSTEM "chrome://letsignore/locale/letsignore.dtd">
@@ -13,156 +39,156 @@
       align="left"
       flex="1">
   <vbox flex="1"> 
-  <hbox id="main-content"
-        flex="1">
-    <vbox id="content-menu" >
-      <listbox id="content-options-list"
-               rows="3"
-               selectedIndex="0">
-        <listitem label="&letsignore.window.prefs;"/>
-        <listitem label="&letsignore.window.threads;"/>
-        <listitem label="&letsignore.window.users;" />
-      </listbox>
-    </vbox>
-    <vbox id="content-display"
+    <hbox id="main-content"
           flex="1">
-      <deck id="content-deck"
-            selectedIndex="0"
+      <vbox id="content-menu" >
+        <listbox id="content-options-list"
+                 rows="3"
+                 selectedIndex="0">
+          <listitem label="&letsignore.window.prefs;"/>
+          <listitem label="&letsignore.window.threads;"/>
+          <listitem label="&letsignore.window.users;" />
+        </listbox>
+      </vbox>
+      <vbox id="content-display"
             flex="1">
-        <vbox id="pref-page"
+        <deck id="content-deck"
+              selectedIndex="0"
               flex="1">
-          <richlistbox id="pref-page-list"
-                   rows="3"
-                   selectedIndex="0">
-            <richlistitem>
-              <checkbox id="letsignore-disable-check"/>
-              <description>&letsignore.window.pref.disable;</description>
-            </richlistitem>
-            <richlistitem>
-              <checkbox id="letsignore-top-ad-check"/>
-              <description>&letsignore.window.pref.top.ad;</description>
-            </richlistitem>
-            <richlistitem>
-              <checkbox id="letsignore-mid-ad-check"/>
-              <description>&letsignore.window.pref.mid.ad;</description>
-            </richlistitem>
-          </richlistbox>
-          <deck id="pref-info-deck"
+          <vbox id="pref-page"
                 flex="1">
-            <vbox flex="1">
-              <description class="pref-info-title">&letsignore.window.pref.disable;</description>
-              <description>&letsignore.window.pref.disable.info;</description>
-            </vbox>
-            <vbox flex="1">
-              <description class="pref-info-title">&letsignore.window.pref.top.ad;</description>
-              <description>&letsignore.window.pref.top.ad.info;</description>
-              <vbox align="center">
-                <image src="chrome://letsignore/skin/topad.png"/>
+            <richlistbox id="pref-page-list"
+                        rows="3"
+                        selectedIndex="0">
+              <richlistitem>
+                <checkbox id="letsignore-disable-check"/>
+                <description>&letsignore.window.pref.disable;</description>
+              </richlistitem>
+              <richlistitem>
+                <checkbox id="letsignore-top-ad-check"/>
+                <description>&letsignore.window.pref.top.ad;</description>
+              </richlistitem>
+              <richlistitem>
+                <checkbox id="letsignore-mid-ad-check"/>
+                <description>&letsignore.window.pref.mid.ad;</description>
+              </richlistitem>
+            </richlistbox>
+            <deck id="pref-info-deck"
+                  flex="1">
+              <vbox flex="1">
+                <description class="pref-info-title">&letsignore.window.pref.disable;</description>
+                <description>&letsignore.window.pref.disable.info;</description>
               </vbox>
-            </vbox>
-            <vbox flex="1">
-              <description class="pref-info-title">&letsignore.window.pref.mid.ad;</description>
-              <description>&letsignore.window.pref.mid.ad.info;</description>
-              <vbox align="center">
-                <image src="chrome://letsignore/skin/midad.png"/>
+              <vbox flex="1">
+                <description class="pref-info-title">&letsignore.window.pref.top.ad;</description>
+                <description>&letsignore.window.pref.top.ad.info;</description>
+                <vbox align="center">
+                  <image src="chrome://letsignore/skin/topad.png"/>
+                </vbox>
               </vbox>
-            </vbox>
-          </deck>
-        </vbox>
-        <vbox id="threads-page"
-              flex="1">
-          <tree flex="1"
-                id="threads-tree"
-                onselect="LetsIgnore.WindowManager.onTreeSelected('threads');"
-                rows="20"
-                sortDirection="ascending"
-                sortResource="threadIgnoreDate"
-                hidecolumnpicker="true">
-            <treecols>
-              <treecol id="threadTitle"
-                       label="&letsignore.threads.title;"
-                       onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
-                       class="threads-treecol"
-                       width="260"
-                       flex="1" />
-              <splitter class="tree-splitter"/>
-              <treecol id="threadUser"
-                       label="&letsignore.threads.author;"
-                       onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
-                       class="threads-treecol"
-                       width="155"
-                       flex="1" />
-              <splitter class="tree-splitter"/>
-              <treecol id="threadIgnoreDate"
-                       label="&letsignore.threads.date;"
-                       onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
-                       class="threads-treecol"
-                       width="155"
-                       flex="1"/>
-            </treecols>
-            <treechildren/>
-          </tree>
-          <hbox flex="1">
-            <hbox flex="1"/>
-            <button id="threads-unignore-button"
-                    label="&letsignore.threads.unignore;"
-                    disabled="true"
-                    onclick="LetsIgnore.WindowManager.unignore('threads');"/>
-            <hbox flex="1"/>
-          </hbox>
-        </vbox>
-        <vbox id="users-page"
-              flex="1">
-          <hbox flex="1">
-            <vbox flex="1"
-                  id="users-controls-box">
-              <label id="users-ignore-label"
-                     value="&letsignore.users.label;"/>
-              <textbox id="users-ignore-entry"
-                       minwidth="160"/>
-              <button id="users-ignore-button"
-                      label="&letsignore.users.ignore;"
-                      disabled="false"/>
-            </vbox>
-            <vbox flex="1"
-                  id="users-tree-box">
-              <tree flex="1"
-                    id="users-tree"
-                    onselect="LetsIgnore.WindowManager.onTreeSelected('users');"
-                    rows="20"
-                    sortDirection="ascending"
-                    sortResource="userIgnoreDate"
-                    width="600"
-                    hidecolumnpicker="true">
-                <treecols>
-                  <treecol id="userUser"
-                           label="&letsignore.users.title;"
-                           onclick="LetsIgnore.WindowManager.sortTree('users',this);"
-                           class="users-treecol"
-                           flex="1"/>
-                  <splitter class="tree-splitter"/>
-                  <treecol id="userIgnoreDate"
-                           label="&letsignore.users.date;"
-                           onclick="LetsIgnore.WindowManager.sortTree('users',this);"
-                           class="users-treecol"
-                           flex="1"/>
+              <vbox flex="1">
+                <description class="pref-info-title">&letsignore.window.pref.mid.ad;</description>
+                <description>&letsignore.window.pref.mid.ad.info;</description>
+                <vbox align="center">
+                  <image src="chrome://letsignore/skin/midad.png"/>
+                </vbox>
+              </vbox>
+            </deck>
+          </vbox>
+          <vbox id="threads-page"
+                flex="1">
+            <tree flex="1"
+                  id="threads-tree"
+                  onselect="LetsIgnore.WindowManager.onTreeSelected('threads');"
+                  rows="20"
+                  sortDirection="ascending"
+                  sortResource="threadIgnoreDate"
+                  hidecolumnpicker="true">
+              <treecols>
+                <treecol id="threadTitle"
+                         label="&letsignore.threads.title;"
+                         onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
+                         class="threads-treecol"
+                         width="260"
+                        flex="1" />
+                <splitter class="tree-splitter"/>
+                <treecol id="threadUser"
+                         label="&letsignore.threads.author;"
+                         onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
+                         class="threads-treecol"
+                         width="155"
+                        flex="1" />
+                <splitter class="tree-splitter"/>
+                <treecol id="threadIgnoreDate"
+                         label="&letsignore.threads.date;"
+                         onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
+                         class="threads-treecol"
+                         width="155"
+                        flex="1"/>
                 </treecols>
-                <treechildren/>
-              </tree>
-              <hbox flex="1">
-                <hbox flex="1"/>
-                  <button id="users-unignore-button"
-                         label="&letsignore.users.unignore;"
-                         disabled="true"
-                         onclick="LetsIgnore.WindowManager.unignore('users');"/>
-                <hbox flex="1"/>
-              </hbox>
-            </vbox>
-          </hbox>                
-        </vbox>
-      </deck>
-    </vbox>
-  </hbox>  
+              <treechildren/>
+            </tree>
+            <hbox flex="1">
+              <hbox flex="1"/>
+              <button id="threads-unignore-button"
+                      label="&letsignore.threads.unignore;"
+                      disabled="true"
+                      onclick="LetsIgnore.WindowManager.unignore('threads');"/>
+              <hbox flex="1"/>
+            </hbox>
+          </vbox>
+          <vbox id="users-page"
+                flex="1">
+            <hbox flex="1">
+              <vbox flex="1"
+                    id="users-controls-box">
+                <label id="users-ignore-label"
+                       value="&letsignore.users.label;"/>
+                <textbox id="users-ignore-entry"
+                         minwidth="160"/>
+                <button id="users-ignore-button"
+                        label="&letsignore.users.ignore;"
+                        disabled="false"/>
+              </vbox>
+              <vbox flex="1"
+                    id="users-tree-box">
+                <tree flex="1"
+                      id="users-tree"
+                      onselect="LetsIgnore.WindowManager.onTreeSelected('users');"
+                      rows="20"
+                      sortDirection="ascending"
+                      sortResource="userIgnoreDate"
+                      width="600"
+                      hidecolumnpicker="true">
+                  <treecols>
+                    <treecol id="userUser"
+                             label="&letsignore.users.title;"
+                             onclick="LetsIgnore.WindowManager.sortTree('users',this);"
+                             class="users-treecol"
+                             flex="1"/>
+                    <splitter class="tree-splitter"/>
+                    <treecol id="userIgnoreDate"
+                             label="&letsignore.users.date;"
+                             onclick="LetsIgnore.WindowManager.sortTree('users',this);"
+                             class="users-treecol"
+                             flex="1"/>
+                  </treecols>
+                  <treechildren/>
+                </tree>
+                <hbox flex="1">
+                  <hbox flex="1"/>
+                    <button id="users-unignore-button"
+                            label="&letsignore.users.unignore;"
+                            disabled="true"
+                            onclick="LetsIgnore.WindowManager.unignore('users');"/>
+                  <hbox flex="1"/>
+                </hbox>
+              </vbox>
+            </hbox>                
+          </vbox>
+        </deck>
+      </vbox>
+    </hbox>  
   </vbox>
 </hbox>
 
