@@ -87,19 +87,18 @@ rbILetsignoreManager.prototype = {
    */
   initialize : function() {
     
+    // open the database, initializing if necessary
+    var file = Cc["@mozilla.org/file/directory_service;1"]
+                 .getService(Ci.nsIProperties)
+                 .get("ProfD",Ci.nsIFile);
+    file.append("letsignore.sqlite");
+    
+    var storageSvc = Cc["@mozilla.org/storage/service;1"]
+                       .getService(Ci.mozIStorageService);
+    this._db = storageSvc.openDatabase(file);
+
     this._cache = {};
     for (var i in this._CONFIG) {
-
-      // open the database, initializing if necessary
-      var file = Cc["@mozilla.org/file/directory_service;1"]
-                   .getService(Ci.nsIProperties)
-                   .get("ProfD",Ci.nsIFile);
-      file.append("letsignore.sqlite");
-    
-      var storageSvc = Cc["@mozilla.org/storage/service;1"]
-                         .getService(Ci.mozIStorageService);
-      this._db = storageSvc.openDatabase(file);
-
       // initialize database tables and cache
       this._initializeTable(this._CONFIG[i]);
       this._initializeCache(this._CONFIG[i],i);
