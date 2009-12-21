@@ -2,17 +2,15 @@
 <RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:em="http://www.mozilla.org/2004/em-rdf#">
   <Description about="urn:mozilla:install-manifest">
     <em:id>letsignore@repeatingbeats.com</em:id>
-    <em:name>letsignore</em:name>
+    <em:name>LetsIgnore</em:name>
     <em:version>0.1.0.0</em:version>
-    <em:description>Ignore threads on letsrun.com</em:description>
+    <em:description>Ignore threads, users, and ads on letsrun.com forums</em:description>
     <em:creator>Steven M. Lloyd</em:creator>
-    <em:contributor>Greasemonkey Compiler by Anthony Lieuallen;</em:contributor>
-    <em:contributor>http://arantius.com/</em:contributor>
     <em:homepageURL>www.repeatingbeats.com/projects/letsignore</em:homepageURL>
     <em:targetApplication>
       <Description><em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
-        <em:minVersion>3.0</em:minVersion>
-        <em:maxVersion>3.6b1pre</em:maxVersion>
+        <em:minVersion>3.5.0</em:minVersion>
+        <em:maxVersion>3.6.*</em:maxVersion>
       </Description>
     </em:targetApplication>
   </Description>

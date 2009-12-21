@@ -15,7 +15,7 @@
 <!ENTITY letsignore.menu.label "LetsIgnore" >
 
 <!ENTITY letsignore.threads.title "Thread">
-<!ENTITY letsignore.threads.author "Author">
+<!ENTITY letsignore.threads.author "User">
 <!ENTITY letsignore.threads.date "Date Ignored">
 <!ENTITY letsignore.threads.unignore "Un-ignore Selected">
 
