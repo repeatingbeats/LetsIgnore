@@ -69,151 +69,108 @@ LetsIgnore.WindowManager = {
         Application.prefs.setValue("extensions.letsignore.removeMidAd",
             !Application.prefs.get("extensions.letsignore.removeMidAd").value);
     },false);
-
-    // configure the ignored threads pane
-    this.ignoredThreadsData = [];
-    this.ignoredThreadsCount = 0;
-    var ignoredThreadsCallback = {
-      handleResult : function(resultSet) {
-        var winmgr = LetsIgnore.WindowManager;
-        var rowCount = winmgr.fillThreadsData(resultSet);
-        var view = winmgr.getThreadTreeView(rowCount);
-        document.getElementById("thread-tree").view = view;
-      },
-      handleError : function(err) {
-        Cu.reportError(err);
-      },
-      handleCompletion : function(reason) {
-        if (reason != Ci.mozIStorageStatementCallback.REASON_FINISHED) {
-          Cu.reportError("Query canceled or aborted");  
-        }
-        LetsIgnore.WindowManager.sortThreadTree(
-            document.getElementById("thread-ignore-date"));
-      }
-    };
-    this.mgr.getIgnoredThreads(ignoredThreadsCallback);
-
-    // configure the ignored users pane
-    this.ignoredUsersData = [];
-    this.ignoredUsersCount = 0;
-    var ignoredUsersCallback = {
-      handleResult : function(resultSet) {
-        var winmgr = LetsIgnore.WindowManager;
-        var rowCount = winmgr.fillUsersData(resultSet);
-        var view = winmgr.getUserTreeView(rowCount);
-        document.getElementById("user-tree").view = view;
-    },
-    handleError : function(err) {
-      Cu.reportError(err);
-    },
-    handleCompletion : function(reason) {
-      if (reason != Ci.mozIStorageStatementCallback.REASON_FINISHED) {
-        Cu.reportError("Query canceled or aborted");
-      }
-      LetsIgnore.WindowManager.sortUserTree(
-        document.getElementById("user-date-col"));
-      }
-    };
-    this.mgr.getIgnoredUsers(ignoredUsersCallback);
-
+ 
+    this.ignoreData = {};
+    this.ignoreCount = {};
+    this.CONFIG = JSON.parse(this.mgr.getConfig());
+    for (var topic in this.CONFIG) {
+      this.ignoreCount[topic] = 0;
+      this.ignoreData[topic] = [];
+      this.configureTree(topic);
+    }
+ 
     // listen for ignored threads and users
     var ignoredThreadObserver = { observe : function(subject,topic,data) {
-      if (topic == "letsignore-thread-ignore") {
-        winmgr.addIgnoredThread(data);
+      if (topic == "letsignore-threads-ignore") {
+        winmgr.addIgnoredItem('threads',data);
       }
     }};
     var ignoredUserObserver = { observe : function(subject,topic,data) {
-      if (topic == "letsignore-user-ignore") {
-        winmgr.addIgnoredUser(data);
+      if (topic == "letsignore-users-ignore") {
+        winmgr.addIgnoredItem('users',data);
       }
     }};
     var observerService = Cc['@mozilla.org/observer-service;1']
                             .getService(Ci.nsIObserverService);
     observerService.addObserver(ignoredThreadObserver,
-                                "letsignore-thread-ignore",false);
+                                "letsignore-threads-ignore",false);
     observerService.addObserver(ignoredUserObserver,
-                                "letsignore-user-ignore",false);
+                                "letsignore-users-ignore",false);
     //TODO: remove on unload
 
     // hook up manual user ignore entry
-    this.ignoreUserButton = document.getElementById("user-ignore-button");
+    this.ignoreUserButton = document.getElementById("users-ignore-button");
     this.ignoreUserButton.addEventListener("command", function() {
-      var user = document.getElementById("user-ignore-entry").value;
+      var user = document.getElementById("users-ignore-entry").value;
       if (user && user != "") {
-        LetsIgnore.WindowManager.mgr.ignoreUser(user,
-            (new Date()).toString().substring(4));
-        document.getElementById("user-ignore-entry").value = "";
+        var userData = {
+                          userUser : user,
+                          userIgnoreDate : (new Date()).toString().substring(4),
+                          userIgnoreCode : 1
+                        };
+        var userDataStr = JSON.stringify(userData);
+        LetsIgnore.WindowManager.mgr.ignore('users',userDataStr)
+        document.getElementById("users-ignore-entry").value = "";
       }
     },false);
-    var ignoreUserEntry = document.getElementById("user-ignore-entry");
+    var ignoreUserEntry = document.getElementById("users-ignore-entry");
     ignoreUserEntry.addEventListener("keypress", function(e) {
       if (e.keyCode == 13) {
-        document.getElementById("user-ignore-button").doCommand();
+        document.getElementById("users-ignore-button").doCommand();
       }
     },false);
         
   },
 
-  addIgnoredThread : function(threadDataString) {
-    var threadData = JSON.parse(threadDataString);
-    this.ignoredThreadsData.push(
-         { "thread-name-col" : threadData.title,
-           "thread-author-col" : threadData.author,
-           "thread-ignore-date" : threadData.date,
-           "thread-id" : threadData.id
-          });
-    this.resetThreadTree();
-  },
-
-  addIgnoredUser : function(userDataString) {
-    var userData = JSON.parse(userDataString);
-    this.ignoredUsersData.push(
-         { "user-name-col" : userData.user,
-           "user-date-col" : userData.ignoreDate
-         });
-    this.resetUserTree();
-  },
-
-  fillThreadsData : function(resultSet) {
+  configureTree : function(topic) {
     
-    if (!this.ignoredThreadsData) {
-      this.ignoredThreadsData = [];
+    var resultHandler = function(resultSet) {
+      var winmgr = LetsIgnore.WindowManager;
+      var rowCount = winmgr.fillData(topic,resultSet);
+      var view = winmgr.getTreeView(topic,rowCount);
+      document.getElementById(topic + "-tree").view = view;
+    };
+
+    var completionHandler = function(reason) {
+      var defaultSortCol = topic.substring(0,topic.length-1) + "IgnoreDate";
+      LetsIgnore.WindowManager.sortTree(topic,
+          document.getElementById(defaultSortCol));
+    };
+
+    var callback =
+        this.generateStorageCallback(resultHandler,null,completionHandler);
+    this.mgr.getIgnored(topic,callback);
+  },
+     
+  addIgnoredItem : function(topic,datastr) {
+    var data = JSON.parse(datastr);
+    this.ignoreData[topic].push(data);
+    this.resetTree(topic);
+  },
+  
+  fillData : function(topic,resultSet) {
+
+    if (!this.ignoreData[topic]) {
+      this.ignoreData[topic] = [];
     }
-    var rowIndex = this.ignoredThreadsCount;
+
+    var rowIndex = this.ignoreCount[topic];
     var row;
+    var config = this.CONFIG[topic];
     while (row = resultSet.getNextRow()) {
-      this.ignoredThreadsData.push(
-          { "thread-name-col" : row.getResultByName("title"),
-            "thread-author-col" : row.getResultByName("author"),
-            "thread-ignore-date" : row.getResultByName("ignoreDate"),
-            "thread-id" : row.getResultByName("ID")
-          });
+      var itemData = {};
+      for (var c in config.cols) {
+        itemData[config.cols[c]] = row.getResultByName(config.cols[c]);
+      }
+      this.ignoreData[topic].push(itemData);
       rowIndex++;
     }
-    this.ignoredThreadsCount = rowIndex;
-    return rowIndex;
+    return this.ignoreCount[topic] = rowIndex;
   },
-
-  fillUsersData : function(resultSet) {
-    if (!this.ignoredUsersData) {
-      this.ignoredUsersData = [];
-    }
-    var rowIndex = this.ignoredUsersCount;
-    var row;
-    while (row = resultSet.getNextRow()) {
-      this.ignoredUsersData.push(
-           { "user-name-col" : row.getResultByName("user"),
-             "user-date-col" : row.getResultByName("ignoreDate")
-           });
-      rowIndex++;
-    }
-    this.ignoredUsersCount = rowIndex;
-    return rowIndex;
-  },
-
-  onThreadTreeSelected : function() {
-
-    var selection = document.getElementById("thread-tree").view.selection;
+  
+  onTreeSelected : function(topic) {
+    
+    var selection = document.getElementById(topic + "-tree").view.selection;
     var rangeCount = selection.getRangeCount();
     if (rangeCount > 0) {
       var selected = [];
@@ -221,242 +178,122 @@ LetsIgnore.WindowManager = {
         var min = new Object();
         var max = new Object();
         selection.getRangeAt(r,min,max);
-        for (var i=min.value; i<=max.value; i++) {
+        for (var i = min.value; i<=max.value; i++) {
           selected.push(i);
         }
       }
-      //alert(selected);
-      document.getElementById("thread-unignore-button").disabled = false;
-      this.selectedThreads = selected;
+      document.getElementById(topic + "-unignore-button").disabled = false;
+      if (!this.selected) {
+        this.selected = {};
+      }
+      this.selected[topic] = selected;
     }
   },
 
-  onUserTreeSelected : function() {
+  resetTree : function(topic) {
     
-    var selection = document.getElementById("user-tree").view.selection;
-    var rangeCount = selection.getRangeCount();
-    if (rangeCount > 0) {
-      var selected = [];
-      for (var r=0; r<rangeCount; r++) {
-        var min = new Object();
-        var max = new Object();
-        selection.getRangeAt(r,min,max);
-        for (var i=min.value; i<=max.value; i++) {
-          selected.push(i);
+    var rowCount = this.ignoreData[topic].length;
+    var view = this.getTreeView(topic,rowCount);
+    document.getElementById(topic + "-tree").view = view;
+  },
+
+  unignore : function(topic) {
+    
+    for (var i in this.selected[topic]) {
+      var index = this.selected[topic][i];
+      var item = this.ignoreData[topic][index];
+      this.mgr.unignore(topic,JSON.stringify(item));
+      this.ignoreData[topic][index] = null;
+    }
+    for (var i=0; i<this.ignoreData[topic].length; i++) {
+      if (!this.ignoreData[topic][i]) {
+        this.ignoreData[topic].splice(i--,1);
+      }
+    }
+    this.resetTree(topic);
+    document.getElementById(topic + "-unignore-button").disabled = true;
+  },
+  
+  sortTree : function(topic,col) {
+    
+    var selectedKeyValues = [];
+    if (this.selected && this.selected[topic] && this.selected[topic].length > 0) {
+      for (var i in this.selected[topic]) {
+        var currSelected = this.selected[topic][i];
+        var key = this.CONFIG[topic]["key"];
+        selectedKeyValues.push(
+          this.ignoreData[topic][currSelected][key]);
+      }
+    }
+    
+    var tree = document.getElementById(topic + "-tree");
+    var sortDirection =
+        tree.getAttribute("sortDirection") == "ascending" ? 1 : -1;
+    var colName;
+    if (col) {
+      colName = col.id;
+      if (tree.getAttribute("sortResource") == colName) {
+        sortDirection *= -1;
+      }
+    } else {
+      colName = tree.getAttribute("sortResource");
+    }
+
+    // the sorting function
+    var winmgr = this;
+    function colSort (a,b) {
+      if (winmgr.sortPrep(a[colName]) > winmgr.sortPrep(b[colName])) {
+        return sortDirection;
+      }
+      if (winmgr.sortPrep(a[colName]) < winmgr.sortPrep(b[colName])) {
+        return -sortDirection;
+      }
+      // tiebreaker -> date 
+      var tiebreaker = topic.substring(0,topic.length-1) + "IgnoreDate";
+      if (colName != tiebreaker) {
+        if (winmgr.sortPrep(a[tiebreaker]) > winmgr.sortPrep(b[tiebreaker])) {
+          return 1;
+        }
+        if (winmgr.sortPrep(a[tiebreaker]) < winmgr.sortPrep(b[tiebreaker])) {
+          return -1;
         }
       }
-      document.getElementById("user-unignore-button").disabled = false;
-      this.selectedUsers = selected;
+      return 0;
     }
-  },
 
-  resetThreadTree : function() {
-  
-    var rowCount = this.ignoredThreadsData.length;
-    var view = this.getThreadTreeView(rowCount);
-    document.getElementById("thread-tree").view = view;  
-  },
-
-  resetUserTree : function() {
-  
-    var rowCount = this.ignoredUsersData.length;
-    var view = this.getUserTreeView(rowCount);
-    document.getElementById("user-tree").view = view;  
-  },
-
-  unignore : function() {
-    for (var i in this.selectedThreads) {
-      var threadIndex = this.selectedThreads[i];
-      var thread = this.ignoredThreadsData[threadIndex];
-      this.mgr.unignoreThread(thread["thread-id"]);
-      this.ignoredThreadsData[threadIndex] = null;
+    this.ignoreData[topic].sort(colSort);
+    tree.setAttribute("sortDirection",
+                      sortDirection == 1 ? "ascending" : "descending");
+    tree.setAttribute("sortResource",colName);
+    var cols = tree.getElementsByClassName(topic+"-treecol");
+    for (var c=0; c<cols.length; c++) {
+      cols[c].removeAttribute("sortDirection");
     }
-    for (var i=0; i<this.ignoredThreadsData.length; i++) {
-      if (!this.ignoredThreadsData[i]) {
-        this.ignoredThreadsData.splice(i--,1);
+    document.getElementById(colName).setAttribute("sortDirection",
+        sortDirection == 1 ? "ascending" : "descending");
+
+    this.resetTree(topic);
+
+    // reset the selection
+    var selection = tree.view.selection;
+    selection.clearSelection();
+    if (selectedKeyValues.length > 0) {
+      for (var i in selectedKeyValues) {
+        var value = selectedKeyValues[i];
+        var key = this.CONFIG[topic]["key"];
+        var index = this.getRowForValue(topic,key,value);
+        if (index) {
+          selection.toggleSelect(index);
+        }
       }
     }
-    this.resetThreadTree();
-    document.getElementById("thread-unignore-button").disabled = true;
-  },
-
-  unignoreUsers : function() {
-    for (var i in this.selectedUsers) {
-      var userIndex = this.selectedUsers[i];
-      var user = this.ignoredUsersData[userIndex];
-      this.mgr.unignoreUser(user["user-name-col"]);
-      this.ignoredUsersData[userIndex] = null;
-    }
-    for (var i=0; i<this.ignoredUsersData.length; i++) {
-      if (!this.ignoredUsersData[i]) {
-        this.ignoredUsersData.splice(i--,1);
-      }
-    }
-    this.resetUserTree();
-    document.getElementById("user-unignore-button").disabled = true;
   },
 
   //https://developer.mozilla.org/en/Sorting_and_filtering_a_custom_tree_view
-  sortThreadTree : function(col) {
 
-    var selectedThreadTitles = [];
-    if (this.selectedThreads && this.selectedThreads.length > 0) {
-      for (var i in this.selectedThreads) {
-        selectedThreadTitles.push(
-          this.ignoredThreadsData[this.selectedThreads[i]]["thread-name-col"]);
-      }
-    }
-    
-    var tree = document.getElementById("thread-tree");
-    var sortDirection =
-        tree.getAttribute("sortDirection") == "ascending" ? 1 : -1;
-    var colName;
-    if (col){
-      colName = col.id;
-      if (tree.getAttribute("sortResource") == colName) {
-        sortDirection *= -1;
-      }
-    } else {
-      colName = tree.getAttribute("sortResource");
-    }
-    
-    // the sorting function
-    var winmgr = this;
-    function colSort (a,b) {
-      if (winmgr.sortPrep(a[colName]) > winmgr.sortPrep(b[colName])) {
-        return sortDirection;
-      }
-      if (winmgr.sortPrep(a[colName]) < winmgr.sortPrep(b[colName])) {
-        return -sortDirection;
-      }
-      // name ascending for tiebreaker
-      var tiebreaker = "thread-ignore-date";
-      if (colName != tiebreaker) {
-        if (winmgr.sortPrep(a[tiebreaker]) > winmgr.sortPrep(b[tiebreaker])) {
-          return 1;
-        }
-        if (winmgr.sortPrep(a[tiebreaker]) < winmgr.sortPrep(b[tiebreaker])) {
-          return -1;
-        }
-      }
-      return 0;
-    }
-
-    this.ignoredThreadsData.sort(colSort);
-    tree.setAttribute("sortDirection",
-                      sortDirection == 1 ? "ascending" : "descending");
-    tree.setAttribute("sortResource",colName);
-    var cols = tree.getElementsByClassName("thread-treecol");
-    for (var c=0; c<cols.length; c++) {
-      cols[c].removeAttribute("sortDirection");
-    }
-    document.getElementById(colName).setAttribute("sortDirection",
-        sortDirection == 1 ? "ascending" : "descending");
-
-    // reset the selection
-    var selection = tree.view.selection;
-    selection.clearSelection();
-    if (selectedThreadTitles.length > 0) {
-      for (var i in selectedThreadTitles) {
-        var currTitle = selectedThreadTitles[i];
-        // find the row of the thread with this title
-        var nameCol = document.getElementById("thread-name-col");
-        var threadIndex = this.getThreadRowForValue(nameCol,currTitle);
-        // toggle it on
-        if (threadIndex) {
-          selection.toggleSelect(threadIndex);
-        }
-      }
-    }
-    
-  },
-
-  sortUserTree : function(col) {
-
-    var selectedUserTitles = [];
-    if (this.selectedUsers && this.selectedUsers.length > 0) {
-      for (var i in this.selectedUsers) {
-        selectedUserTitles.push(
-          this.ignoredUsersData[this.selectedUsers[i]]["user-name-col"]);
-      }
-    }
-    
-    var tree = document.getElementById("user-tree");
-    var sortDirection =
-        tree.getAttribute("sortDirection") == "ascending" ? 1 : -1;
-    var colName;
-    if (col){
-      colName = col.id;
-      if (tree.getAttribute("sortResource") == colName) {
-        sortDirection *= -1;
-      }
-    } else {
-      colName = tree.getAttribute("sortResource");
-    }
-    
-    // the sorting function
-    var winmgr = this;
-    function colSort (a,b) {
-      if (winmgr.sortPrep(a[colName]) > winmgr.sortPrep(b[colName])) {
-        return sortDirection;
-      }
-      if (winmgr.sortPrep(a[colName]) < winmgr.sortPrep(b[colName])) {
-        return -sortDirection;
-      }
-      // name ascending for tiebreaker
-      var tiebreaker = "user-date-col";
-      if (colName != tiebreaker) {
-        if (winmgr.sortPrep(a[tiebreaker]) > winmgr.sortPrep(b[tiebreaker])) {
-          return 1;
-        }
-        if (winmgr.sortPrep(a[tiebreaker]) < winmgr.sortPrep(b[tiebreaker])) {
-          return -1;
-        }
-      }
-      return 0;
-    }
-
-    this.ignoredUsersData.sort(colSort);
-    tree.setAttribute("sortDirection",
-                      sortDirection == 1 ? "ascending" : "descending");
-    tree.setAttribute("sortResource",colName);
-    var cols = tree.getElementsByClassName("user-treecol");
-    for (var c=0; c<cols.length; c++) {
-      cols[c].removeAttribute("sortDirection");
-    }
-    document.getElementById(colName).setAttribute("sortDirection",
-        sortDirection == 1 ? "ascending" : "descending");
-
-    // reset the selection
-    var selection = tree.view.selection;
-    selection.clearSelection();
-    if (selectedUserTitles.length > 0) {
-      for (var i in selectedUserTitles) {
-        var currTitle = selectedUserTitles[i];
-        // find the row of the user with this title
-        var nameCol = document.getElementById("user-name-col");
-        var userIndex = this.getUserRowForValue(nameCol,currTitle);
-        // toggle it on
-        if (userIndex) {
-          selection.toggleSelect(userIndex);
-        }
-      }
-    }
-    
-  },
-
-  getThreadRowForValue : function(treecol,value) {
-    for (var i in this.ignoredThreadsData) {
-      if (this.ignoredThreadsData[i][treecol.id] == value) {
-        return i;
-      }
-    }
-    return null;
-  },
-
-  getUserRowForValue : function(treecol,value) {
-    for (var i in this.ignoredUsersData) {
-      if (this.ignoredUsersData[i][treecol.id] == value) {
+  getRowForValue : function(topic,key,value) {
+    for (var i in this.ignoreData[topic]) {
+      if (this.ignoreData[topic][i][key] == value) {
         return i;
       }
     }
@@ -467,13 +304,13 @@ LetsIgnore.WindowManager = {
     return (typeof obj == "string") ? obj.toLowerCase() : obj;
   },
 
-  getThreadTreeView : function(count) {
+  getTreeView : function(topic,count) {
     
     var winmgr = this;
     return {
       rowCount : count,
       getCellText : function(row,column) {
-        return winmgr.ignoredThreadsData[row][column.id];
+        return winmgr.ignoreData[topic][row][column.id];
       },
       setTree : function(treebox) {
         this.treebox = treebox;
@@ -505,46 +342,33 @@ LetsIgnore.WindowManager = {
     };
   },
 
-  getUserTreeView : function(count) {
-    
-    var winmgr = this;
-    return {
-      rowCount : count,
-      getCellText : function(row,column) {
-        return winmgr.ignoredUsersData[row][column.id];
+  generateStorageCallback : function(resultHandler,
+                                     errorHandler,
+                                     completionHandler) {
+    var callback = {
+      handleResult : function(aResultSet) {
+        if (resultHandler) {
+          resultHandler(aResultSet);
+        }
       },
-      setTree : function(treebox) {
-        this.treebox = treebox;
+      handleError : function(aError) {
+        Cu.reportError(aError);
+        if (errorHandler) {
+          errorHandler(aError);
+        }
       },
-      isContainer : function(row) {
-        return false;
-      },
-      isSeparator : function(row) {
-        return false;
-      },
-      isSorted : function() {
-        return false;
-      },
-      getLevel : function(row) {
-        return 0;
-      },
-      getImageSrc : function(row,col) {
-        return null;
-      },
-      getRowProperties : function(row,props) {
-        // empty
-      },
-      getCellProperties : function(row,col,props) {
-        // empty
-      },
-      getColumnProperties : function(colid,col,props) {
-        // empty
+      handleCompletion : function(aReason) {
+        if (aReason != Ci.mozIStorageStatementCallback.REASON_FINISHED) {
+          Cu.reportError("Bad SQL query completion, reason: " + aReason);
+        }
+        if (completionHandler) {
+          completionHandler(aReason);
+        }
       }
     };
+    return callback;
   },
 
-  onWindowResize : function() {
-  },
 
   onUnLoad : function() {
     window.removeEventListener('load',LetsIgnore.WindowManager.onLoad,false);

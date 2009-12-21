@@ -6,8 +6,7 @@
 <window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"
         title="&letsignore.window.title;"
         width="860"
-        height="480"
-        onresize="LetsIgnore.WindowManager.onWindowResize();">
+        height="500" >
 <script src="letsignore-window.js"></script>
 
 <hbox id="content"
@@ -16,7 +15,7 @@
   <vbox flex="1"> 
   <hbox id="main-content"
         flex="1">
-    <vbox id="content-menu">
+    <vbox id="content-menu" >
       <listbox id="content-options-list"
                rows="3"
                selectedIndex="0">
@@ -70,34 +69,34 @@
             </vbox>
           </deck>
         </vbox>
-        <vbox id="thread-page"
+        <vbox id="threads-page"
               flex="1">
           <tree flex="1"
-                id="thread-tree"
-                onselect="LetsIgnore.WindowManager.onThreadTreeSelected();"
+                id="threads-tree"
+                onselect="LetsIgnore.WindowManager.onTreeSelected('threads');"
                 rows="20"
                 sortDirection="ascending"
-                sortResource="thread-ignore-date"
+                sortResource="threadIgnoreDate"
                 hidecolumnpicker="true">
             <treecols>
-              <treecol id="thread-name-col"
+              <treecol id="threadTitle"
                        label="&letsignore.threads.title;"
-                       onclick="LetsIgnore.WindowManager.sortThreadTree(this);"
-                       class="thread-treecol"
+                       onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
+                       class="threads-treecol"
                        width="260"
                        flex="1" />
               <splitter class="tree-splitter"/>
-              <treecol id="thread-author-col"
+              <treecol id="threadUser"
                        label="&letsignore.threads.author;"
-                       onclick="LetsIgnore.WindowManager.sortThreadTree(this);"
-                       class="thread-treecol"
+                       onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
+                       class="threads-treecol"
                        width="155"
                        flex="1" />
               <splitter class="tree-splitter"/>
-              <treecol id="thread-ignore-date"
+              <treecol id="threadIgnoreDate"
                        label="&letsignore.threads.date;"
-                       onclick="LetsIgnore.WindowManager.sortThreadTree(this);"
-                       class="thread-treecol"
+                       onclick="LetsIgnore.WindowManager.sortTree('threads',this);"
+                       class="threads-treecol"
                        width="155"
                        flex="1"/>
             </treecols>
@@ -105,57 +104,57 @@
           </tree>
           <hbox flex="1">
             <hbox flex="1"/>
-            <button id="thread-unignore-button"
+            <button id="threads-unignore-button"
                     label="&letsignore.threads.unignore;"
                     disabled="true"
-                    onclick="LetsIgnore.WindowManager.unignore();"/>
+                    onclick="LetsIgnore.WindowManager.unignore('threads');"/>
             <hbox flex="1"/>
           </hbox>
         </vbox>
-        <vbox id="user-page"
+        <vbox id="users-page"
               flex="1">
           <hbox flex="1">
             <vbox flex="1"
-                  id="user-controls-box">
-              <label id="user-ignore-label"
+                  id="users-controls-box">
+              <label id="users-ignore-label"
                      value="&letsignore.users.label;"/>
-              <textbox id="user-ignore-entry"
+              <textbox id="users-ignore-entry"
                        minwidth="160"/>
-              <button id="user-ignore-button"
+              <button id="users-ignore-button"
                       label="&letsignore.users.ignore;"
                       disabled="false"/>
             </vbox>
             <vbox flex="1"
-                  id="user-tree-box">
+                  id="users-tree-box">
               <tree flex="1"
-                    id="user-tree"
-                    onselect="LetsIgnore.WindowManager.onUserTreeSelected();"
+                    id="users-tree"
+                    onselect="LetsIgnore.WindowManager.onTreeSelected('users');"
                     rows="20"
                     sortDirection="ascending"
-                    sortResource="user-ignore-date"
+                    sortResource="userIgnoreDate"
                     width="600"
                     hidecolumnpicker="true">
                 <treecols>
-                  <treecol id="user-name-col"
+                  <treecol id="userUser"
                            label="&letsignore.users.title;"
-                           onclick="LetsIgnore.WindowManager.sortUserTree(this);"
-                           class="user-treecol"
+                           onclick="LetsIgnore.WindowManager.sortTree('users',this);"
+                           class="users-treecol"
                            flex="1"/>
                   <splitter class="tree-splitter"/>
-                  <treecol id="user-date-col"
+                  <treecol id="userIgnoreDate"
                            label="&letsignore.users.date;"
-                           onclick="LetsIgnore.WindowManager.sortUserTree(this);"
-                           class="user-treecol"
+                           onclick="LetsIgnore.WindowManager.sortTree('users',this);"
+                           class="users-treecol"
                            flex="1"/>
                 </treecols>
                 <treechildren/>
               </tree>
               <hbox flex="1">
                 <hbox flex="1"/>
-                  <button id="user-unignore-button"
+                  <button id="users-unignore-button"
                          label="&letsignore.users.unignore;"
                          disabled="true"
-                         onclick="LetsIgnore.WindowManager.unignoreUsers();"/>
+                         onclick="LetsIgnore.WindowManager.unignore('users');"/>
                 <hbox flex="1"/>
               </hbox>
             </vbox>
@@ -164,16 +163,6 @@
       </deck>
     </vbox>
   </hbox>  
-
-<!--<hbox id="footer">
-    <button id="close-button"
-            class="letsignore-button"
-            label="&letsignore.window.closeLabel;"
-            oncommand="close();"/>
-  </hbox>
--->
-  <spacer height="40"/>
-
   </vbox>
 </hbox>
 

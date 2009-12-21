@@ -107,6 +107,8 @@ function filterIndexPage() {
           var refNode = this.nextSibling.lastChild;
           var threadTitle = refNode.previousSibling.textContent;
           var threadAuthor = refNode.textContent.substring(3);
+          var userString = refNode.textContent;
+          var threadAuthor = userString.substring(3,userString.length-1);
           if (this.id != 0) {
             letsignore_ignoreThread(this.id,threadTitle,threadAuthor,
                 (new Date()).toString().substring(4));

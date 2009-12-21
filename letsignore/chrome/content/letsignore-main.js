@@ -126,22 +126,32 @@ LetsIgnore.Controller = {
     // additional API for LetsIgnore
     sandbox.letsignore_ignoreThread = function (id,title,auth,ignoreDate) {
       ignoreDate += "";
-      ctr.mgr.ignoreThread(id,title,auth,ignoreDate,0);
+      var data = {
+                    threadID : id,
+                    threadTitle : title,
+                    threadUser : auth,
+                    threadIgnoreDate : ignoreDate,
+                    threadIgnoreCode : 0
+                  };
+      ctr.mgr.ignore('threads',JSON.stringify(data));
     };
 
     sandbox.letsignore_isThreadIgnored = function (id) {
-      return ctr.mgr.isThreadIgnored(id);
+      return ctr.mgr.isIgnored('threads',id);
     };
 
     sandbox.letsignore_isUserIgnored = function(user) {
-      //return ctr.mgr.isUserIgnored(user); 
-      var a = ctr.mgr.isUserIgnored(user); 
-      return a;
+      return ctr.mgr.isIgnored('users',user);
     };
     
     sandbox.letsignore_ignoreUser = function(user,ignoreDate) {
       ignoreDate += "";
-      ctr.mgr.ignoreUser(user,ignoreDate);
+      var data = {
+                    userUser : user,
+                    userIgnoreDate : ignoreDate,
+                    userIgnoreCode : 1
+                  };
+      ctr.mgr.ignore('users',JSON.stringify(data));
     }
 
     sandbox.letsignore_isLetsIgnoreDisabled = function() {
@@ -302,64 +312,7 @@ LetsIgnore.Controller = {
       .removeEventListener("DOMContentLoaded",
                             LetsIgnore.Controller.contentLoad, false);
   },
-  
-  // set up the letsignore sqlite db
-  initDb : function() {
-
-    // open the database, initializing if necessary
-    var file = Cc["@mozilla.org/file/directory_service;1"]
-                 .getService(Ci.nsIProperties)
-                 .get("ProfD",Ci.nsIFile);
-    file.append("letsignore.sqlite");
-    
-    var storageSvc = Cc["@mozilla.org/storage/service;1"]
-                       .getService(Ci.mozIStorageService);
-    this.db = storageSvc.openDatabase(file);
-    //alert("creating table");
-    try { 
-      this.db.executeSimpleSQL("CREATE TABLE ignoredThreads(" +
-                               "ID int," +
-                               "title varchar(255)," +
-                               "author varchar(255)," +
-                               "ignoreDate varchar(255))");
-    } catch(err) {
-      // should really fix this and create the table on the first run only
-      Cu.reportError(err);
-    }
-    //alert("table created");
-  },
-
-  // add a thread to the list of ignored threads  
-  ignoreThread : function(id,title,auth,ignoreDate) {
-    
-    //alert("ignoreThread");
-    
-    var statement = this.db.createStatement("INSERT INTO ignoredThreads " +
-        "VALUES (:paramID, :paramTitle, :paramAuth, :paramDate)");
-    statement.params.paramID = id;
-    statement.params.paramTitle = title;
-    statement.params.paramAuth = auth;
-    statement.params.paramDate = ignoreDate;
-    
-    statement.executeAsync({
-      handleResult : function(aResultSet) {
-        // do something
-        Cu.reportError("success??");
-      },
-      handleError : function(aError) {
-        Cu.reportError(aError);
-      },
-      handleCompletion : function(aReason) {
-        if (aReason != Ci.mozIStorageStatementCallback.REASON_FINISHED) {
-          Cu.reportError("Query canceled or aborted");
-        }
-      },
-    });
-    statement.reset();
-    
-    //alert("inserted into database");
-  },
-  
+   
 }; // LetsIgnore.Controller
 
 function letsignore_ScriptStorage() {
